@@ -2,34 +2,30 @@ package dev.uncandango.alltheleaks.fix.client.mods.neoforge;
 
 import dev.uncandango.alltheleaks.annotation.Issue;
 import dev.uncandango.alltheleaks.utils.ReflectionHelper;
+import java.lang.invoke.VarHandle;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.Connection;
-import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent.LoggingOut;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.registries.RegistryManager;
 
-import java.lang.invoke.VarHandle;
-
 @Issue(issueId = "#1932", modId = "neoforge", versionRange = "[21.,21.1.115]")
 public class FixSnapshot {
-	private static final VarHandle DISCONNECTION_HANDLED;
+   private static final VarHandle DISCONNECTION_HANDLED = ReflectionHelper.getFieldFromClass(Connection.class, "disconnectionHandled", boolean.class, false);
 
-	static {
-		DISCONNECTION_HANDLED = ReflectionHelper.getFieldFromClass(Connection.class, "disconnectionHandled", boolean.class, false);
-	}
+   public FixSnapshot() {
+      IEventBus gamebus = NeoForge.EVENT_BUS;
+      gamebus.addListener(this::callRevertToFrozenOnDisconnect);
+   }
 
-	public FixSnapshot() {
-		var gamebus = NeoForge.EVENT_BUS;
-		gamebus.addListener(this::callRevertToFrozenOnDisconnect);
-	}
-
-	private void callRevertToFrozenOnDisconnect(ClientPlayerNetworkEvent.LoggingOut event) {
-		if (Minecraft.getInstance().getConnection() instanceof ClientPacketListener listener) {
-			var handled = (boolean)DISCONNECTION_HANDLED.get(listener.getConnection());
-			if (!listener.getConnection().isMemoryConnection() && !handled) {
-				RegistryManager.revertToFrozen();
-			}
-		}
-	}
+   private void callRevertToFrozenOnDisconnect(LoggingOut event) {
+      if (Minecraft.getInstance().getConnection() instanceof ClientPacketListener listener) {
+         boolean handled = (boolean)DISCONNECTION_HANDLED.get((Connection)listener.getConnection());
+         if (!listener.getConnection().isMemoryConnection() && !handled) {
+            RegistryManager.revertToFrozen();
+         }
+      }
+   }
 }

@@ -12,18 +12,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(targets = "mekanism.client.render.transmitter.RenderLogisticalTransporter$LazyItemRenderer")
 public class LazyItemRendererMixin implements UpdateableLevel {
-	@Shadow
-	private @Nullable ItemEntity entityItem;
+   @Shadow
+   @Nullable
+   private ItemEntity entityItem;
 
-	@Inject(method = "<init>", at = @At("TAIL"))
-	private void grabInstance(CallbackInfo ci){
-		UpdateableLevel.register(this);
-	}
+   @Inject(method = "<init>", at = @At("TAIL"))
+   private void grabInstance(CallbackInfo ci) {
+      UpdateableLevel.register(this);
+   }
 
-	@Override
-	public void atl$onClientLevelUpdated(@Nullable ClientLevel level) {
-		if (this.entityItem != null && this.entityItem.level() != level) {
-			this.entityItem = null;
-		}
-	}
+   @Override
+   public void atl$onClientLevelUpdated(@Nullable ClientLevel level) {
+      if (this.entityItem != null && this.entityItem.level() != level) {
+         this.entityItem = null;
+      }
+   }
 }

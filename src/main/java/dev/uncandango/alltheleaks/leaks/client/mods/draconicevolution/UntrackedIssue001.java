@@ -4,25 +4,21 @@ import com.brandon3055.draconicevolution.items.MobSoul;
 import dev.uncandango.alltheleaks.annotation.Issue;
 import dev.uncandango.alltheleaks.mixin.UpdateableLevel;
 import dev.uncandango.alltheleaks.utils.ReflectionHelper;
-import net.neoforged.neoforge.common.NeoForge;
-
 import java.lang.invoke.VarHandle;
 import java.util.Map;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.common.NeoForge;
 
 @Issue(modId = "draconicevolution", versionRange = "*")
 public class UntrackedIssue001 {
-	public static final VarHandle RENDER_ENTITY_MAP;
+   public static final VarHandle RENDER_ENTITY_MAP = ReflectionHelper.getFieldFromClass(MobSoul.class, "renderEntityMap", Map.class, true);
 
-	public UntrackedIssue001() {
-		var gameBus = NeoForge.EVENT_BUS;
-		gameBus.addListener(this::clearEntityMap);
-	}
+   public UntrackedIssue001() {
+      IEventBus gameBus = NeoForge.EVENT_BUS;
+      gameBus.addListener(this::clearEntityMap);
+   }
 
-	static {
-		RENDER_ENTITY_MAP = ReflectionHelper.getFieldFromClass(MobSoul.class, "renderEntityMap", Map.class, true);
-	}
-
-	private void clearEntityMap(UpdateableLevel.RenderEnginesUpdated event) {
-		((Map)RENDER_ENTITY_MAP.get()).clear();
-	}
+   private void clearEntityMap(UpdateableLevel.RenderEnginesUpdated event) {
+      (Map)RENDER_ENTITY_MAP.get().clear();
+   }
 }

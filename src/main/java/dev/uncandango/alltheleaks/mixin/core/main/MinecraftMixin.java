@@ -11,8 +11,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Minecraft.class)
 public class MinecraftMixin {
-	@Inject(method = "updateLevelInEngines", at = @At("TAIL"))
-	private void postUpdateLevelInEngines(ClientLevel level, CallbackInfo ci) {
-		NeoForge.EVENT_BUS.post(new UpdateableLevel.RenderEnginesUpdated(level));
-	}
+   @Inject(method = "updateLevelInEngines", at = @At("TAIL"))
+   private void postUpdateLevelInEngines(ClientLevel level, CallbackInfo ci) {
+      NeoForge.EVENT_BUS.post(new UpdateableLevel.RenderEnginesUpdated(level));
+   }
 }

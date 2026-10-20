@@ -7,6 +7,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(value = ContextFactory.class, remap = false)
 public interface ContextFactoryAccessor {
-	@Accessor("currentContext")
-	ThreadLocal<Context> getCurrentContext();
+   @Accessor("currentContext")
+   ThreadLocal<Context> getCurrentContext();
 }

@@ -12,12 +12,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = FTBQuestsEventHandler.class, remap = false)
 public abstract class FTBQuestsEventHandlerMixin {
+   @Shadow
+   protected abstract void fileCacheClear(BaseQuestFile var1);
 
-	@Shadow
-	protected abstract void fileCacheClear(BaseQuestFile file);
-
-	@Inject(method = "serverStopped", at = @At(value = "FIELD", target = "Ldev/ftb/mods/ftbquests/quest/ServerQuestFile;INSTANCE:Ldev/ftb/mods/ftbquests/quest/ServerQuestFile;", ordinal = 2))
-	void atl$clearTasks(MinecraftServer server, CallbackInfo ci) {
-		fileCacheClear(ServerQuestFile.INSTANCE);
-	}
+   @Inject(
+      method = "serverStopped",
+      at = @At(value = "FIELD", target = "Ldev/ftb/mods/ftbquests/quest/ServerQuestFile;INSTANCE:Ldev/ftb/mods/ftbquests/quest/ServerQuestFile;", ordinal = 2)
+   )
+   void atl$clearTasks(MinecraftServer server, CallbackInfo ci) {
+      this.fileCacheClear(ServerQuestFile.INSTANCE);
+   }
 }

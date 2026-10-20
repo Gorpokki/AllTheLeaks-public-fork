@@ -6,6 +6,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(targets = "net.minecraft.server.level.ChunkMap$DistanceManager")
 public interface ChunkMapDistanceManagerAccessor {
-	@Accessor("this$0")
-	ChunkMap atl$getChunkMap();
+   @Accessor("this$0")
+   ChunkMap atl$getChunkMap();
 }

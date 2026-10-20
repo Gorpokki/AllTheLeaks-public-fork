@@ -10,18 +10,14 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(Ingredient.class)
 public class IngredientMixin {
+   @ModifyReturnValue(method = "fromValues", at = @At("RETURN"))
+   private static Ingredient grabIngredient(Ingredient origIngredient) {
+      return !origIngredient.isEmpty() && !origIngredient.isCustom() ? IngredientDedupe.intern(origIngredient) : origIngredient;
+   }
 
-	@ModifyReturnValue(method = "fromValues", at = @At("RETURN"))
-	private static Ingredient grabIngredient(Ingredient origIngredient) {
-		if (!origIngredient.isEmpty() && !origIngredient.isCustom()) {
-			return IngredientDedupe.intern(origIngredient);
-		}
-		return origIngredient;
-	}
-
-	@Mixin(Ingredient.class)
-	public interface IngredientAccessor {
-		@Accessor("itemStacks")
-		void setItemStacks(ItemStack[] itemStacks);
-	}
+   @Mixin(Ingredient.class)
+   public interface IngredientAccessor {
+      @Accessor("itemStacks")
+      void setItemStacks(ItemStack[] var1);
+   }
 }

@@ -3,7 +3,10 @@ package dev.uncandango.alltheleaks.mixin.core.main;
 import com.google.gson.JsonElement;
 import dev.uncandango.alltheleaks.leaks.client.mods.athena.UntrackedIssue001;
 import earth.terrarium.athena.impl.loading.AthenaResourceLoader;
-import net.minecraft.client.resources.model.BlockStateModelLoader;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import net.minecraft.client.resources.model.BlockStateModelLoader.LoadedJson;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -13,19 +16,18 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-
 @Mixin(value = AthenaResourceLoader.class, remap = false)
 public abstract class AthenaResourceLoaderMixin {
-	@Shadow
-	public abstract void setGetter(Function<ResourceLocation, List<BlockStateModelLoader.LoadedJson>> getter);
+   @Shadow
+   public abstract void setGetter(Function<ResourceLocation, List<LoadedJson>> var1);
 
-	@Inject(method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V", at = @At("TAIL"))
-	private void clearGetter(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profilerFiller, CallbackInfo ci) {
-		if (!UntrackedIssue001.isModernFixDynResEnabled()) {
-			setGetter(null);
-		}
-	}
+   @Inject(
+      method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V",
+      at = @At("TAIL")
+   )
+   private void clearGetter(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profilerFiller, CallbackInfo ci) {
+      if (!UntrackedIssue001.isModernFixDynResEnabled()) {
+         this.setGetter(null);
+      }
+   }
 }

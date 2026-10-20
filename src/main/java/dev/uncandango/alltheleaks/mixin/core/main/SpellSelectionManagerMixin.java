@@ -15,18 +15,24 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = SpellSelectionManager.class, remap = false)
 public class SpellSelectionManagerMixin {
-	@Mutable
-	@Shadow
-	@Final
-	private Player player;
+   @Mutable
+   @Shadow
+   @Final
+   private Player player;
 
-	@Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lio/redspace/ironsspellbooks/api/magic/SpellSelectionManager;init(Lnet/minecraft/world/entity/player/Player;)V"))
-	private void atl$clearPlayer(Player player, CallbackInfo ci) {
-		this.player = null;
-	}
+   @Inject(
+      method = "<init>",
+      at = @At(value = "INVOKE", target = "Lio/redspace/ironsspellbooks/api/magic/SpellSelectionManager;init(Lnet/minecraft/world/entity/player/Player;)V")
+   )
+   private void atl$clearPlayer(Player player, CallbackInfo ci) {
+      this.player = null;
+   }
 
-	@WrapOperation(method = {"init", "makeLocalSelection", "setSpellSelection"}, at = @At(value = "FIELD", target = "Lio/redspace/ironsspellbooks/api/magic/SpellSelectionManager;player:Lnet/minecraft/world/entity/player/Player;"))
-	private Player atl$replacePlayer(SpellSelectionManager instance, Operation<Player> original) {
-		return Minecraft.getInstance().player;
-	}
+   @WrapOperation(
+      method = {"init", "makeLocalSelection", "setSpellSelection"},
+      at = @At(value = "FIELD", target = "Lio/redspace/ironsspellbooks/api/magic/SpellSelectionManager;player:Lnet/minecraft/world/entity/player/Player;")
+   )
+   private Player atl$replacePlayer(SpellSelectionManager instance, Operation<Player> original) {
+      return Minecraft.getInstance().player;
+   }
 }

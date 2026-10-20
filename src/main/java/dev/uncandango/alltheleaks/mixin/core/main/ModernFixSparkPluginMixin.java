@@ -7,8 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(targets = "org.embeddedt.modernfix.spark.SparkLaunchProfiler$ModernFixSparkPlugin")
 public abstract class ModernFixSparkPluginMixin implements SparkPlugin {
-	@Override
-	public ClassSourceLookup createClassSourceLookup() {
-		return new NeoForgeClassSourceLookup();
-	}
+   public ClassSourceLookup createClassSourceLookup() {
+      return new NeoForgeClassSourceLookup();
+   }
 }

@@ -13,16 +13,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ModelAnimator.class)
 public abstract class ModelAnimatorMixin implements UpdateableLevel<ModelAnimator> {
-	@Shadow
-	public abstract void update(IAnimatedEntity entity);
+   @Shadow
+   public abstract void update(IAnimatedEntity var1);
 
-	@Inject(method = "<init>()V", at = @At("RETURN"))
-	private void registerInstance(CallbackInfo ci) {
-		UpdateableLevel.register(this);
-	}
+   @Inject(method = "<init>()V", at = @At("RETURN"))
+   private void registerInstance(CallbackInfo ci) {
+      UpdateableLevel.register(this);
+   }
 
-	@Override
-	public void atl$onClientLevelUpdated(@Nullable ClientLevel level) {
-		this.update(null);
-	}
+   @Override
+   public void atl$onClientLevelUpdated(@Nullable ClientLevel level) {
+      this.update(null);
+   }
 }

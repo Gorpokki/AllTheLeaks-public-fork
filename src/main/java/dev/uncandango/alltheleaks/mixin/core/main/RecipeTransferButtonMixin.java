@@ -12,19 +12,18 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value = RecipeTransferButton.class)
+@Mixin(RecipeTransferButton.class)
 public abstract class RecipeTransferButtonMixin implements UpdateablePlayer<RecipeTransferButton> {
+   @Shadow
+   public abstract void update(@Nullable AbstractContainerMenu var1, @Nullable Player var2);
 
-	@Shadow
-	public abstract void update(@Nullable AbstractContainerMenu parentContainer, @Nullable Player player);
+   @Inject(method = "<init>", at = @At("TAIL"))
+   private void registerInstance(CallbackInfo ci) {
+      UpdateablePlayer.register(this);
+   }
 
-	@Inject(method = "<init>", at = @At("TAIL"))
-	private void registerInstance(CallbackInfo ci){
-		UpdateablePlayer.register(this);
-	}
-
-	@Override
-	public void atl$onClientPlayerUpdated(LocalPlayer player) {
-		this.update(player.containerMenu, player);
-	}
+   @Override
+   public void atl$onClientPlayerUpdated(LocalPlayer player) {
+      this.update(player.containerMenu, player);
+   }
 }

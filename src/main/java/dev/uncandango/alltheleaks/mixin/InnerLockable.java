@@ -1,8 +1,13 @@
 package dev.uncandango.alltheleaks.mixin;
 
 public interface InnerLockable extends Lockable {
-	boolean atl$isInnerLocked();
-	void atl$setInnerLocked(boolean locked);
-	boolean atl$isLocked();
-	void atl$setLocked(boolean locked);
+   boolean atl$isInnerLocked();
+
+   void atl$setInnerLocked(boolean var1);
+
+   @Override
+   boolean atl$isLocked();
+
+   @Override
+   void atl$setLocked(boolean var1);
 }

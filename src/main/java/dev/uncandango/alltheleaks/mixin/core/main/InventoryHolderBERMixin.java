@@ -14,13 +14,19 @@ import org.spongepowered.asm.mixin.injection.At;
 @Pseudo
 @Mixin(targets = "com.direwolf20.justdirethings.client.blockentityrenders.InventoryHolderBER")
 public class InventoryHolderBERMixin {
-	@Shadow
-	public static AbstractClientPlayer mockPlayer;
+   @Shadow
+   public static AbstractClientPlayer mockPlayer;
 
-	@WrapOperation(method = "render", at = @At(value = "INVOKE_ASSIGN", target = "Lcom/direwolf20/justdirethings/client/blockentityrenders/InventoryHolderBER;createMockPlayer(Lcom/direwolf20/justdirethings/common/blockentities/InventoryHolderBE;)Lnet/minecraft/client/player/AbstractClientPlayer;"))
-	private void myHandler(AbstractClientPlayer value, Operation<Void> original, @Local(argsOnly = true) BlockEntity be){
-		if (mockPlayer == null || !mockPlayer.getUUID().equals(((BaseMachineBE)be).placedByUUID)) {
-			original.call(value);
-		}
-	}
+   @WrapOperation(
+      method = "render",
+      at = @At(
+         value = "INVOKE_ASSIGN",
+         target = "Lcom/direwolf20/justdirethings/client/blockentityrenders/InventoryHolderBER;createMockPlayer(Lcom/direwolf20/justdirethings/common/blockentities/InventoryHolderBE;)Lnet/minecraft/client/player/AbstractClientPlayer;"
+      )
+   )
+   private void myHandler(AbstractClientPlayer value, Operation<Void> original, @Local(argsOnly = true) BlockEntity be) {
+      if (mockPlayer == null || !mockPlayer.getUUID().equals(((BaseMachineBE)be).placedByUUID)) {
+         original.call(new Object[]{value});
+      }
+   }
 }

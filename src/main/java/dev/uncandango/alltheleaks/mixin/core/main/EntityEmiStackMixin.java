@@ -9,6 +9,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityType.EntityFactory;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
@@ -22,39 +23,38 @@ import stepsword.mahoutsukai.integration.emi.EntityEmiStack;
 @Pseudo
 @Mixin(value = EntityEmiStack.class, remap = false)
 public class EntityEmiStackMixin implements UpdateableLevel<EntityEmiStack>, EntityEmiStackFactory {
-	@Shadow
-	public ResourceLocation loc;
-	@Shadow
-	Entity entity;
-	@Unique
-	private EntityType.EntityFactory<Entity> atl$entityFactory;
+   @Shadow
+   public ResourceLocation loc;
+   @Shadow
+   Entity entity;
+   @Unique
+   private EntityFactory<Entity> atl$entityFactory;
+   @Unique
+   private EntityType<Entity> atl$entityType;
 
-	@Unique
-	private EntityType<Entity> atl$entityType;
+   @Inject(method = "<init>", at = @At("RETURN"))
+   private void grabEntity(ResourceLocation loc, Entity entity, CallbackInfo ci) {
+      this.atl$entityFactory = EntityType::create;
+      this.atl$entityType = entity.getType();
+      UpdateableLevel.register(this);
+   }
 
-	@Inject(method = "<init>", at = @At("RETURN"))
-	private void grabEntity(ResourceLocation loc, Entity entity, CallbackInfo ci) {
-		atl$entityFactory = EntityType::create;
-		atl$entityType = (EntityType<Entity>) entity.getType();
-		UpdateableLevel.register(this);
-	}
+   @WrapMethod(method = "copy()Ldev/emi/emi/api/stack/EmiStack;")
+   private EmiStack atl$copy(Operation<EmiStack> original) {
+      EntityFactory<Entity> factory = this.atl$entityFactory;
+      return ((EntityEmiStackFactory)(new EntityEmiStack(this.loc, this.entity))).atl$withFactory(factory);
+   }
 
-	@WrapMethod(method = "copy()Ldev/emi/emi/api/stack/EmiStack;")
-	private EmiStack atl$copy(Operation<EmiStack> original) {
-		var factory = this.atl$entityFactory;
-		return ((EntityEmiStackFactory) new EntityEmiStack(this.loc, this.entity)).atl$withFactory(factory);
-	}
+   @Override
+   public void atl$onClientLevelUpdated(@Nullable ClientLevel level) {
+      if (level != null) {
+         this.entity = this.atl$entityFactory.create(this.atl$entityType, level);
+      }
+   }
 
-	@Override
-	public void atl$onClientLevelUpdated(@Nullable ClientLevel level) {
-		if (level != null) {
-			this.entity = atl$entityFactory.create(atl$entityType, level);
-		}
-	}
-
-	@Override
-	public EntityEmiStack atl$withFactory(EntityType.EntityFactory<Entity> factory) {
-		atl$entityFactory = factory;
-		return (EntityEmiStack) (Object) this;
-	}
+   @Override
+   public EntityEmiStack atl$withFactory(EntityFactory<Entity> factory) {
+      this.atl$entityFactory = factory;
+      return (EntityEmiStack)this;
+   }
 }

@@ -11,11 +11,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = Lootr.class, remap = false)
 public class LootrMixin {
-	@Shadow
-	public CommandLootr COMMAND_LOOTR;
+   @Shadow
+   public CommandLootr COMMAND_LOOTR;
 
-	@Inject(method = "onCommands", at = @At("TAIL"))
-	private void atl$clearCommandVar(RegisterCommandsEvent event, CallbackInfo ci){
-		this.COMMAND_LOOTR = null;
-	}
+   @Inject(method = "onCommands", at = @At("TAIL"))
+   private void atl$clearCommandVar(RegisterCommandsEvent event, CallbackInfo ci) {
+      this.COMMAND_LOOTR = null;
+   }
 }

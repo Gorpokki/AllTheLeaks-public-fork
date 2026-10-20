@@ -6,8 +6,8 @@ import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(ChunkAccess.class)
 public class ChunkAccessMixin implements Trackable {
-	@Override
-	public Class<?> atl$getBaseClass() {
-		return ChunkAccess.class;
-	}
+   @Override
+   public Class<?> atl$getBaseClass() {
+      return ChunkAccess.class;
+   }
 }

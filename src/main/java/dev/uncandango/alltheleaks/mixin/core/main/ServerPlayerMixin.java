@@ -13,11 +13,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin {
-
-	@Inject(method = "<init>", at = @At(value = "TAIL"))
-	private void atl$clearTriggers(MinecraftServer server, ServerLevel level, GameProfile gameProfile, ClientInformation clientInformation, CallbackInfo ci) {
-		if ((Object) this instanceof FakePlayer fakePlayer) {
-			fakePlayer.getAdvancements().stopListening();
-		}
-	}
+   @Inject(method = "<init>", at = @At("TAIL"))
+   private void atl$clearTriggers(MinecraftServer server, ServerLevel level, GameProfile gameProfile, ClientInformation clientInformation, CallbackInfo ci) {
+      if (this instanceof FakePlayer fakePlayer) {
+         fakePlayer.getAdvancements().stopListening();
+      }
+   }
 }

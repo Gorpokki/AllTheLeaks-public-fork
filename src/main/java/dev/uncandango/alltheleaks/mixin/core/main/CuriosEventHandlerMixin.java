@@ -9,8 +9,7 @@ import top.theillusivec4.curios.common.event.CuriosEventHandler;
 
 @Mixin(value = CuriosEventHandler.class, remap = false)
 public class CuriosEventHandlerMixin {
-	@WrapOperation(method = "playerClone", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;revive()V"))
-	private void atl$cancelRevive(Player instance, Operation<Void> original){
-		// NO-OP
-	}
+   @WrapOperation(method = "playerClone", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;revive()V"))
+   private void atl$cancelRevive(Player instance, Operation<Void> original) {
+   }
 }

@@ -9,9 +9,8 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(AerialInterfaceBlockEntity.class)
 public class AerialInterfaceBlockEntityMixin {
-
-	@WrapWithCondition(method = "clearRemoved", at = @At(value = "INVOKE", target = "Lnet/neoforged/bus/api/IEventBus;register(Ljava/lang/Object;)V"))
-	private boolean registerOnServerOnly(IEventBus instance, Object o){
-		return !Minecraft.getInstance().isSameThread();
-	}
+   @WrapWithCondition(method = "clearRemoved", at = @At(value = "INVOKE", target = "Lnet/neoforged/bus/api/IEventBus;register(Ljava/lang/Object;)V"))
+   private boolean registerOnServerOnly(IEventBus instance, Object o) {
+      return !Minecraft.getInstance().isSameThread();
+   }
 }

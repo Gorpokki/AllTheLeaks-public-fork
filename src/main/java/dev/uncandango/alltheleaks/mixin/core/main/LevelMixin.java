@@ -6,8 +6,8 @@ import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(Level.class)
 public class LevelMixin implements Trackable {
-	@Override
-	public Class<?> atl$getBaseClass() {
-		return Level.class;
-	}
+   @Override
+   public Class<?> atl$getBaseClass() {
+      return Level.class;
+   }
 }

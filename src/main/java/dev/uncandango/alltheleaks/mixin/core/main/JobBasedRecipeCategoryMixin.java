@@ -24,34 +24,36 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = JobBasedRecipeCategory.class, remap = false)
 public class JobBasedRecipeCategoryMixin implements UpdateableLevel<JobBasedRecipeCategory<?>> {
-	@Mutable
-	@Shadow
-	@Final
-	private @NotNull EntityCitizen citizen;
+   @Mutable
+   @Shadow
+   @Final
+   @NotNull
+   private EntityCitizen citizen;
+   @Shadow
+   @Final
+   @NotNull
+   protected IJob<?> job;
 
-	@Shadow
-	@Final
-	@NotNull
-	protected IJob<?> job;
+   @Inject(method = "<init>", at = @At("RETURN"))
+   private void grabInstance(IJob job, RecipeType type, ItemStack icon, IGuiHelper guiHelper, CallbackInfo ci) {
+      UpdateableLevel.register(this);
+   }
 
-	@Inject(method = "<init>", at = @At("RETURN"))
-	private void grabInstance(IJob job, RecipeType type, ItemStack icon, IGuiHelper guiHelper, CallbackInfo ci){
-		UpdateableLevel.register(this);
-	}
+   @Override
+   public void atl$onClientLevelUpdated(@Nullable ClientLevel level) {
+      if (level != null) {
+         this.citizen = this.createCitizenWithJob(this.job, level);
+      }
+   }
 
-	@Override
-	public void atl$onClientLevelUpdated(@Nullable ClientLevel level) {
-		if (level == null) return;
-		this.citizen = createCitizenWithJob(this.job, level);
-	}
-
-	@Unique
-	private EntityCitizen createCitizenWithJob(IJob<?> job, Level level) {
-		EntityCitizen citizen = new EntityCitizen(ModEntities.CITIZEN, level);
-		citizen.setFemale(citizen.getRandom().nextBoolean());
-		citizen.setTextureId(citizen.getRandom().nextInt(255));
-		citizen.getEntityData().set(EntityCitizen.DATA_TEXTURE_SUFFIX, CitizenData.SUFFIXES.get(citizen.getRandom().nextInt(CitizenData.SUFFIXES.size())));
-		citizen.setModelId(job.getModel());
-		return citizen;
-	}
+   @Unique
+   private EntityCitizen createCitizenWithJob(IJob<?> job, Level level) {
+      EntityCitizen citizen = new EntityCitizen(ModEntities.CITIZEN, level);
+      citizen.setFemale(citizen.getRandom().nextBoolean());
+      citizen.setTextureId(citizen.getRandom().nextInt(255));
+      citizen.getEntityData()
+         .set(EntityCitizen.DATA_TEXTURE_SUFFIX, (String)CitizenData.SUFFIXES.get(citizen.getRandom().nextInt(CitizenData.SUFFIXES.size())));
+      citizen.setModelId(job.getModel());
+      return citizen;
+   }
 }

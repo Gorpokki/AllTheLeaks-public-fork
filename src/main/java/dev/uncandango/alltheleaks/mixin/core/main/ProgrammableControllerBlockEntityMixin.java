@@ -14,12 +14,14 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(ProgrammableControllerBlockEntity.class)
 public class ProgrammableControllerBlockEntityMixin extends AbstractAirHandlingBlockEntity {
-	public ProgrammableControllerBlockEntityMixin(BlockEntityType<?> type, BlockPos pos, BlockState state, PressureTier pressureTier, int volume, int upgradeSlots) {
-		super(type, pos, state, pressureTier, volume, upgradeSlots);
-	}
+   public ProgrammableControllerBlockEntityMixin(
+      BlockEntityType<?> type, BlockPos pos, BlockState state, PressureTier pressureTier, int volume, int upgradeSlots
+   ) {
+      super(type, pos, state, pressureTier, volume, upgradeSlots);
+   }
 
-	@WrapWithCondition(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/neoforged/bus/api/IEventBus;register(Ljava/lang/Object;)V"))
-	private boolean registerOnServerOnly(IEventBus instance, Object o){
-		return !Minecraft.getInstance().isSameThread();
-	}
+   @WrapWithCondition(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/neoforged/bus/api/IEventBus;register(Ljava/lang/Object;)V"))
+   private boolean registerOnServerOnly(IEventBus instance, Object o) {
+      return !Minecraft.getInstance().isSameThread();
+   }
 }

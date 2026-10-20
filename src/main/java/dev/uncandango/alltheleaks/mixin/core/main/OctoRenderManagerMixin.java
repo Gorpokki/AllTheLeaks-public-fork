@@ -7,12 +7,12 @@ import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(targets = {"it.hurts.octostudios.octolib.module.particle.OctoRenderManager","it.hurts.octostudios.octolib.modules.particles.OctoRenderManager"})
+@Mixin(targets = {"it.hurts.octostudios.octolib.module.particle.OctoRenderManager", "it.hurts.octostudios.octolib.modules.particles.OctoRenderManager"})
 public class OctoRenderManagerMixin {
-	@Inject(method = "registerProvider", at = @At("HEAD"), cancellable = true)
-	private static void cancelIfServerSide(@Coerce Object provider, CallbackInfo ci) {
-		if (provider instanceof Entity entity && !entity.level().isClientSide()) {
-			ci.cancel();
-		}
-	}
+   @Inject(method = "registerProvider", at = @At("HEAD"), cancellable = true)
+   private static void cancelIfServerSide(@Coerce Object provider, CallbackInfo ci) {
+      if (provider instanceof Entity entity && !entity.level().isClientSide()) {
+         ci.cancel();
+      }
+   }
 }

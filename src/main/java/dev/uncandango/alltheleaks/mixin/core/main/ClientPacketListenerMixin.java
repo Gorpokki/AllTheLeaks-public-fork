@@ -9,8 +9,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPacketListener.class)
 public class ClientPacketListenerMixin {
-	@Inject(method = "close", at = @At("TAIL"))
-	private void atl$handleCloseForBadPackets(CallbackInfo ci) {
-		UntrackedIssue001.clearPacketsFromHandler((ClientPacketListener) (Object) this);
-	}
+   @Inject(method = "close", at = @At("TAIL"))
+   private void atl$handleCloseForBadPackets(CallbackInfo ci) {
+      UntrackedIssue001.clearPacketsFromHandler((ClientPacketListener)this);
+   }
 }

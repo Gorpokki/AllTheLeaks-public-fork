@@ -8,8 +8,15 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(TheurgyRecipeSchema.class)
 public interface TheurgyRecipeSchemaMixin {
-	@ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Ldev/latvian/mods/kubejs/recipe/component/RecipeComponentType;inputKey(Ljava/lang/String;)Ldev/latvian/mods/kubejs/recipe/RecipeKey;", ordinal = 0))
-	private static RecipeKey<?> enableOptional(RecipeKey<?> original){
-		return original.defaultOptional();
-	}
+   @ModifyExpressionValue(
+      method = "<clinit>",
+      at = @At(
+         value = "INVOKE",
+         target = "Ldev/latvian/mods/kubejs/recipe/component/RecipeComponentType;inputKey(Ljava/lang/String;)Ldev/latvian/mods/kubejs/recipe/RecipeKey;",
+         ordinal = 0
+      )
+   )
+   private static RecipeKey<?> enableOptional(RecipeKey<?> original) {
+      return original.defaultOptional();
+   }
 }

@@ -4,35 +4,36 @@ import dev.uncandango.alltheleaks.annotation.Issue;
 import dev.uncandango.alltheleaks.mixin.core.main.accessor.RecipeTransferManagerAccessor;
 import mezz.jei.common.Internal;
 import mezz.jei.library.runtime.JeiRuntime;
-import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent.Clone;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.event.level.LevelEvent.Unload;
 
 @Issue(modId = "jei", versionRange = "[19.19.5.232,)", mixins = "main.accessor.RecipeTransferManagerAccessor")
 public class UntrackedIssue001 {
-	public UntrackedIssue001() {
-		var gameBus = NeoForge.EVENT_BUS;
-		gameBus.addListener(this::clearCachedInventories);
-		gameBus.addListener(this::clearCachedInventoriesOnLevelUnload);
-	}
+   public UntrackedIssue001() {
+      IEventBus gameBus = NeoForge.EVENT_BUS;
+      gameBus.addListener(this::clearCachedInventories);
+      gameBus.addListener(this::clearCachedInventoriesOnLevelUnload);
+   }
 
-	private void clearCachedInventoriesOnLevelUnload(LevelEvent.Unload event) {
-		if (event.getLevel().isClientSide()) {
-			clear();
-		}
-	}
+   private void clearCachedInventoriesOnLevelUnload(Unload event) {
+      if (event.getLevel().isClientSide()) {
+         this.clear();
+      }
+   }
 
-	private void clear() {
-		try {
-			var runTime = (JeiRuntime) Internal.getJeiRuntime();
-			if (runTime.getRecipeTransferManager() instanceof RecipeTransferManagerAccessor accessor) {
-				accessor.getUnsupportedContainers().clear();
-			}
-		} catch (Exception ignored) {
-		}
-	}
+   private void clear() {
+      try {
+         JeiRuntime runTime = (JeiRuntime)Internal.getJeiRuntime();
+         if (runTime.getRecipeTransferManager() instanceof RecipeTransferManagerAccessor accessor) {
+            accessor.getUnsupportedContainers().clear();
+         }
+      } catch (Exception var4) {
+      }
+   }
 
-	private void clearCachedInventories(ClientPlayerNetworkEvent.Clone event) {
-		clear();
-	}
+   private void clearCachedInventories(Clone event) {
+      this.clear();
+   }
 }

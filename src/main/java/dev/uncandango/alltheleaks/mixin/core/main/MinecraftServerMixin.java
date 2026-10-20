@@ -6,8 +6,8 @@ import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(MinecraftServer.class)
 public class MinecraftServerMixin implements Trackable {
-	@Override
-	public Class<?> atl$getBaseClass() {
-		return MinecraftServer.class;
-	}
+   @Override
+   public Class<?> atl$getBaseClass() {
+      return MinecraftServer.class;
+   }
 }

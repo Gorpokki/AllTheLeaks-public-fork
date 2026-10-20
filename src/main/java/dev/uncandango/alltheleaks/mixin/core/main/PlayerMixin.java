@@ -6,8 +6,8 @@ import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(Player.class)
 public class PlayerMixin implements Trackable {
-	@Override
-	public Class<?> atl$getBaseClass() {
-		return Player.class;
-	}
+   @Override
+   public Class<?> atl$getBaseClass() {
+      return Player.class;
+   }
 }

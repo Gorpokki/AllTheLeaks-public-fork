@@ -11,19 +11,23 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(value = CustomItemRenderer.class, remap = false)
 public interface CustomItemRendererAccessor {
-	@Mutable
-	@Accessor("entity")
-	static void setEntity(Entity entity) {}
+   @Mutable
+   @Accessor("entity")
+   static void setEntity(Entity entity) {
+   }
 
-	@Mutable
-	@Accessor("horse")
-	static void setHorse(Horse horse){};
+   @Mutable
+   @Accessor("horse")
+   static void setHorse(Horse horse) {
+   }
 
-	@Mutable
-	@Accessor("armorStand")
-	static void setArmorStand(ArmorStand armorStand){};
+   @Mutable
+   @Accessor("armorStand")
+   static void setArmorStand(ArmorStand armorStand) {
+   }
 
-	@Mutable
-	@Accessor("wolf")
-	static void setWolf(Wolf wolf){};
+   @Mutable
+   @Accessor("wolf")
+   static void setWolf(Wolf wolf) {
+   }
 }

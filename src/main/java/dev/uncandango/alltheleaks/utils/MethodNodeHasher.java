@@ -1,149 +1,172 @@
 package dev.uncandango.alltheleaks.utils;
 
-import org.objectweb.asm.tree.*;
-import org.objectweb.asm.ConstantDynamic;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.IdentityHashMap;
+import java.util.Map;
+import org.objectweb.asm.ConstantDynamic;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldInsnNode;
+import org.objectweb.asm.tree.FrameNode;
+import org.objectweb.asm.tree.IincInsnNode;
+import org.objectweb.asm.tree.IntInsnNode;
+import org.objectweb.asm.tree.InvokeDynamicInsnNode;
+import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LdcInsnNode;
+import org.objectweb.asm.tree.LineNumberNode;
+import org.objectweb.asm.tree.LookupSwitchInsnNode;
+import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.MultiANewArrayInsnNode;
+import org.objectweb.asm.tree.TableSwitchInsnNode;
+import org.objectweb.asm.tree.TypeInsnNode;
+import org.objectweb.asm.tree.VarInsnNode;
 
 public class MethodNodeHasher {
-	private static final int FNV_PRIME = 0x01000193;
+   private static final int FNV_PRIME = 16777619;
 
-	public static synchronized int hash(MethodNode method) {
-		int hash = 0x811c9dc5; // FNV offset basis
+   public static synchronized int hash(MethodNode method) {
+      int hash = -2128831035;
+      Map<LabelNode, Integer> labelIds = new IdentityHashMap<>();
+      int[] labelCounter = new int[]{0};
 
-		Map<LabelNode, Integer> labelIds = new IdentityHashMap<>();
-		int[] labelCounter = {0};
+      for (AbstractInsnNode insn : method.instructions) {
+         if (!(insn instanceof LineNumberNode) && !(insn instanceof FrameNode)) {
+            if (insn instanceof LabelNode) {
+               labelIds.computeIfAbsent((LabelNode)insn, k -> Integer.valueOf((int)(labelCounter[0]++)));
+            } else {
+               hash = fnvUpdate(hash, insn.getOpcode());
+               switch (insn.getType()) {
+                  case 1:
+                     hash = fnvUpdate(hash, ((IntInsnNode)insn).operand);
+                     break;
+                  case 2:
+                     hash = fnvUpdate(hash, ((VarInsnNode)insn).var);
+                     break;
+                  case 3:
+                     hash = fnvUpdate(hash, ((TypeInsnNode)insn).desc);
+                     break;
+                  case 4:
+                     FieldInsnNode f = (FieldInsnNode)insn;
+                     hash = fnvUpdate(hash, f.owner);
+                     hash = fnvUpdate(hash, f.name);
+                     hash = fnvUpdate(hash, f.desc);
+                     break;
+                  case 5:
+                     MethodInsnNode m = (MethodInsnNode)insn;
+                     hash = fnvUpdate(hash, m.owner);
+                     hash = fnvUpdate(hash, m.name);
+                     hash = fnvUpdate(hash, m.desc);
+                     hash = fnvUpdate(hash, m.itf ? 1 : 0);
+                     break;
+                  case 6:
+                     InvokeDynamicInsnNode indy = (InvokeDynamicInsnNode)insn;
+                     hash = fnvUpdate(hash, indy.name);
+                     hash = fnvUpdate(hash, indy.desc);
+                     hash = fnvUpdate(hash, indy.bsm.toString());
 
-		for (AbstractInsnNode insn : method.instructions) {
-			if (insn instanceof LineNumberNode || insn instanceof FrameNode) {
-				continue; // skip non-semantic
-			}
+                     for (Object arg : indy.bsmArgs) {
+                        hash = fnvUpdate(hash, String.valueOf(arg));
+                     }
+                     break;
+                  case 7:
+                     JumpInsnNode j = (JumpInsnNode)insn;
+                     int labelId = labelIds.computeIfAbsent(j.label, k -> Integer.valueOf((int)(labelCounter[0]++)));
+                     hash = fnvUpdate(hash, labelId);
+                  case 8:
+                  default:
+                     break;
+                  case 9:
+                     Object cst = ((LdcInsnNode)insn).cst;
+                     updateLdcConstant(hash, cst);
+                     hash = updateLdcConstant(hash, cst);
+                     break;
+                  case 10:
+                     IincInsnNode iinc = (IincInsnNode)insn;
+                     hash = fnvUpdate(hash, iinc.var);
+                     hash = fnvUpdate(hash, iinc.incr);
+                     break;
+                  case 11:
+                     TableSwitchInsnNode tsi = (TableSwitchInsnNode)insn;
+                     hash = fnvUpdate(hash, tsi.min);
+                     hash = fnvUpdate(hash, tsi.max);
+                     int defId = labelIds.computeIfAbsent(tsi.dflt, k -> Integer.valueOf((int)(labelCounter[0]++)));
+                     hash = fnvUpdate(hash, defId);
 
-			if (insn instanceof LabelNode) {
-				labelIds.computeIfAbsent((LabelNode) insn, k -> labelCounter[0]++);
-				continue;
-			}
+                     for (LabelNode l : tsi.labels) {
+                        int lid = labelIds.computeIfAbsent(l, k -> Integer.valueOf((int)(labelCounter[0]++)));
+                        hash = fnvUpdate(hash, lid);
+                     }
+                     break;
+                  case 12:
+                     LookupSwitchInsnNode lsi = (LookupSwitchInsnNode)insn;
+                     int dfltId = labelIds.computeIfAbsent(lsi.dflt, k -> Integer.valueOf((int)(labelCounter[0]++)));
+                     hash = fnvUpdate(hash, dfltId);
 
-			// Always include opcode
-			hash = fnvUpdate(hash, insn.getOpcode());
+                     for (int i = 0; i < lsi.keys.size(); i++) {
+                        hash = fnvUpdate(hash, (Integer)lsi.keys.get(i));
+                        int lid = labelIds.computeIfAbsent((LabelNode)lsi.labels.get(i), k -> Integer.valueOf((int)(labelCounter[0]++)));
+                        hash = fnvUpdate(hash, lid);
+                     }
+                     break;
+                  case 13:
+                     MultiANewArrayInsnNode multi = (MultiANewArrayInsnNode)insn;
+                     hash = fnvUpdate(hash, multi.desc);
+                     hash = fnvUpdate(hash, multi.dims);
+               }
+            }
+         }
+      }
 
-			switch (insn.getType()) {
-				case AbstractInsnNode.VAR_INSN -> {
-					hash = fnvUpdate(hash, ((VarInsnNode) insn).var);
-				}
-				case AbstractInsnNode.FIELD_INSN -> {
-					FieldInsnNode f = (FieldInsnNode) insn;
-					hash = fnvUpdate(hash, f.owner);
-					hash = fnvUpdate(hash, f.name);
-					hash = fnvUpdate(hash, f.desc);
-				}
-				case AbstractInsnNode.METHOD_INSN -> {
-					MethodInsnNode m = (MethodInsnNode) insn;
-					hash = fnvUpdate(hash, m.owner);
-					hash = fnvUpdate(hash, m.name);
-					hash = fnvUpdate(hash, m.desc);
-					hash = fnvUpdate(hash, m.itf ? 1 : 0);
-				}
-				case AbstractInsnNode.LDC_INSN -> {
-					Object cst = ((LdcInsnNode) insn).cst;
-					updateLdcConstant(hash, cst);
-					hash = updateLdcConstant(hash, cst);
-				}
-				case AbstractInsnNode.INT_INSN -> {
-					hash = fnvUpdate(hash, ((IntInsnNode) insn).operand);
-				}
-				case AbstractInsnNode.TYPE_INSN -> {
-					hash = fnvUpdate(hash, ((TypeInsnNode) insn).desc);
-				}
-				case AbstractInsnNode.JUMP_INSN -> {
-					JumpInsnNode j = (JumpInsnNode) insn;
-					int labelId = labelIds.computeIfAbsent(j.label, k -> labelCounter[0]++);
-					hash = fnvUpdate(hash, labelId);
-				}
-				case AbstractInsnNode.IINC_INSN -> {
-					IincInsnNode iinc = (IincInsnNode) insn;
-					hash = fnvUpdate(hash, iinc.var);
-					hash = fnvUpdate(hash, iinc.incr);
-				}
-				case AbstractInsnNode.INVOKE_DYNAMIC_INSN -> {
-					InvokeDynamicInsnNode indy = (InvokeDynamicInsnNode) insn;
-					hash = fnvUpdate(hash, indy.name);
-					hash = fnvUpdate(hash, indy.desc);
-					hash = fnvUpdate(hash, indy.bsm.toString());
-					for (Object arg : indy.bsmArgs) {
-						hash = fnvUpdate(hash, String.valueOf(arg));
-					}
-				}
-				case AbstractInsnNode.MULTIANEWARRAY_INSN -> {
-					MultiANewArrayInsnNode multi = (MultiANewArrayInsnNode) insn;
-					hash = fnvUpdate(hash, multi.desc);
-					hash = fnvUpdate(hash, multi.dims);
-				}
-				case AbstractInsnNode.LOOKUPSWITCH_INSN -> {
-					LookupSwitchInsnNode lsi = (LookupSwitchInsnNode) insn;
-					int dfltId = labelIds.computeIfAbsent(lsi.dflt, k -> labelCounter[0]++);
-					hash = fnvUpdate(hash, dfltId);
-					for (int i = 0; i < lsi.keys.size(); i++) {
-						hash = fnvUpdate(hash, lsi.keys.get(i));
-						int lid = labelIds.computeIfAbsent(lsi.labels.get(i), k -> labelCounter[0]++);
-						hash = fnvUpdate(hash, lid);
-					}
-				}
-				case AbstractInsnNode.TABLESWITCH_INSN -> {
-					TableSwitchInsnNode tsi = (TableSwitchInsnNode) insn;
-					hash = fnvUpdate(hash, tsi.min);
-					hash = fnvUpdate(hash, tsi.max);
-					int defId = labelIds.computeIfAbsent(tsi.dflt, k -> labelCounter[0]++);
-					hash = fnvUpdate(hash, defId);
-					for (LabelNode l : tsi.labels) {
-						int lid = labelIds.computeIfAbsent(l, k -> labelCounter[0]++);
-						hash = fnvUpdate(hash, lid);
-					}
-				}
-			}
-		}
+      return hash;
+   }
 
-		return hash;
-	}
+   private static int fnvUpdate(int hash, int value) {
+      hash ^= value;
+      return hash * 16777619;
+   }
 
-	private static int fnvUpdate(int hash, int value) {
-		hash ^= value;
-		return hash * FNV_PRIME;
-	}
+   private static int fnvUpdate(int hash, String str) {
+      if (str == null) {
+         return hash;
+      }
 
-	private static int fnvUpdate(int hash, String str) {
-		if (str == null) return hash;
-		byte[] data = str.getBytes(StandardCharsets.UTF_8);
-		for (byte b : data) {
-			hash ^= (b & 0xff);
-			hash *= FNV_PRIME;
-		}
-		return hash;
-	}
+      byte[] data = str.getBytes(StandardCharsets.UTF_8);
 
-	private static int updateLdcConstant(int hash, Object cst) {
-		if (cst instanceof ConstantDynamic cd) {
-			// Include name, descriptor, bsm, and args
-			hash = fnvUpdate(hash, cd.getName());
-			hash = fnvUpdate(hash, cd.getDescriptor());
-			hash = fnvUpdate(hash, cd.getBootstrapMethod().toString());
-			for (int i = 0; i < cd.getBootstrapMethodArgumentCount(); i++) {
-				Object arg = cd.getBootstrapMethodArgument(i);
-				hash = fnvUpdate(hash, String.valueOf(arg));
-			}
-		} else {
-			hash = fnvUpdate(hash, String.valueOf(cst));
-		}
-		return hash;
-	}
+      for (byte b : data) {
+         hash ^= b & 255;
+         hash *= 16777619;
+      }
 
-	public static int hash(ClassNode classNode, String methodDesc) {
-		for (var method : classNode.methods) {
-			var fullName = method.name + method.desc;
-			if (fullName.equals(methodDesc)) {
-				return hash(method);
-			}
-		}
-		throw new IllegalArgumentException("Method with descriptor " + methodDesc + " not found!");
-	}
+      return hash;
+   }
+
+   private static int updateLdcConstant(int hash, Object cst) {
+      if (cst instanceof ConstantDynamic cd) {
+         hash = fnvUpdate(hash, cd.getName());
+         hash = fnvUpdate(hash, cd.getDescriptor());
+         hash = fnvUpdate(hash, cd.getBootstrapMethod().toString());
+
+         for (int i = 0; i < cd.getBootstrapMethodArgumentCount(); i++) {
+            Object arg = cd.getBootstrapMethodArgument(i);
+            hash = fnvUpdate(hash, String.valueOf(arg));
+         }
+      } else {
+         hash = fnvUpdate(hash, String.valueOf(cst));
+      }
+
+      return hash;
+   }
+
+   public static int hash(ClassNode classNode, String methodDesc) {
+      for (MethodNode method : classNode.methods) {
+         String fullName = method.name + method.desc;
+         if (fullName.equals(methodDesc)) {
+            return hash(method);
+         }
+      }
+
+      throw new IllegalArgumentException("Method with descriptor " + methodDesc + " not found!");
+   }
 }

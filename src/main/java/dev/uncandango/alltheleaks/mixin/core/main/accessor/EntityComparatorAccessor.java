@@ -5,12 +5,15 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(targets = {"journeymap.client.model.EntityHelper$EntityDistanceComparator", "journeymap.client.model.EntityHelper$EntityDTODistanceComparator"}, remap = false)
+@Mixin(
+   targets = {"journeymap.client.model.EntityHelper$EntityDistanceComparator", "journeymap.client.model.EntityHelper$EntityDTODistanceComparator"},
+   remap = false
+)
 public interface EntityComparatorAccessor {
-	@Mutable
-	@Accessor(value = "player")
-	void atl$setPlayer(Player player);
+   @Mutable
+   @Accessor("player")
+   void atl$setPlayer(Player var1);
 
-	@Accessor(value = "player")
-	Player atl$getPlayer();
+   @Accessor("player")
+   Player atl$getPlayer();
 }

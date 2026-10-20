@@ -9,8 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(NeoForgeEventHandler.class)
 public class NeoForgeEventHandlerMixin {
-	@WrapOperation(method = "playerClone", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;revive()V"))
-	private static void atl$cancelRevive(Player instance, Operation<Void> original) {
-		// NO-OP
-	}
+   @WrapOperation(method = "playerClone", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;revive()V"))
+   private static void atl$cancelRevive(Player instance, Operation<Void> original) {
+   }
 }

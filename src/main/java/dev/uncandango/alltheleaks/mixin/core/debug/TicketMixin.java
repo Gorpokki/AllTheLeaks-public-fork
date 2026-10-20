@@ -8,12 +8,12 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(Ticket.class)
 public abstract class TicketMixin<T> implements TicketExtension<T> {
-	@Shadow
-	@Final
-	private T key;
+   @Shadow
+   @Final
+   private T key;
 
-	@Override
-	public T atl$getKey() {
-		return this.key;
-	}
+   @Override
+   public T atl$getKey() {
+      return this.key;
+   }
 }

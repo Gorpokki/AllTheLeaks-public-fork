@@ -13,19 +13,18 @@ import rainbows.util.RainbowsRendererParticle;
 
 @Mixin(RainbowsRendererParticle.class)
 public abstract class RainbowsRendererParticleMixin extends TextureSheetParticle {
+   @Shadow
+   @Final
+   public Player player;
 
-	@Shadow
-	@Final
-	public Player player;
+   protected RainbowsRendererParticleMixin(ClientLevel level, double x, double y, double z) {
+      super(level, x, y, z);
+   }
 
-	protected RainbowsRendererParticleMixin(ClientLevel level, double x, double y, double z) {
-		super(level, x, y, z);
-	}
-
-	@Inject(method = "tick", at=@At("HEAD"))
-	private void checkIfSamePlayer(CallbackInfo ci){
-		if (this.player.isRemoved()){
-			this.remove();
-		}
-	}
+   @Inject(method = "tick", at = @At("HEAD"))
+   private void checkIfSamePlayer(CallbackInfo ci) {
+      if (this.player.isRemoved()) {
+         this.remove();
+      }
+   }
 }

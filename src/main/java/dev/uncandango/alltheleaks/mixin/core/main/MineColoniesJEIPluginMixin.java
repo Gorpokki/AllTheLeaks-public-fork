@@ -10,11 +10,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(JEIPlugin.class)
 public abstract class MineColoniesJEIPluginMixin implements IModPlugin {
-	@Shadow
-	private boolean recipesLoaded;
+   @Shadow
+   private boolean recipesLoaded;
 
-	@Inject(method = "onRuntimeUnavailable", at = @At("TAIL"))
-	private void toggleRecipesLoaded(CallbackInfo ci){
-		this.recipesLoaded = false;
-	}
+   @Inject(method = "onRuntimeUnavailable", at = @At("TAIL"))
+   private void toggleRecipesLoaded(CallbackInfo ci) {
+      this.recipesLoaded = false;
+   }
 }

@@ -7,6 +7,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(PlayerAdvancements.class)
 public interface PlayerAdvancementsAccessor {
-	@Accessor("player")
-	ServerPlayer getPlayer();
+   @Accessor("player")
+   ServerPlayer getPlayer();
 }

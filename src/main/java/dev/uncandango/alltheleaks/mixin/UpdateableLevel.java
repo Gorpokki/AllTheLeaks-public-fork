@@ -1,5 +1,9 @@
 package dev.uncandango.alltheleaks.mixin;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.Event;
@@ -7,51 +11,49 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
-
 public interface UpdateableLevel<T> {
-	List<WeakReference<UpdateableLevel<?>>> INSTANCES = new ArrayList<>();
+   List<WeakReference<UpdateableLevel<?>>> INSTANCES = new ArrayList<>();
 
-	static <O extends UpdateableLevel<?>> void register(O object) {
-		synchronized (INSTANCES) {
-			INSTANCES.add(new WeakReference<>(object));
-		}
-	}
+   static <O extends UpdateableLevel<?>> void register(O object) {
+      synchronized (INSTANCES) {
+         INSTANCES.add(new WeakReference<>(object));
+      }
+   }
 
-	void atl$onClientLevelUpdated(@Nullable ClientLevel level);
+   void atl$onClientLevelUpdated(@Nullable ClientLevel var1);
 
-	class RenderEnginesUpdated extends Event {
-		@Nullable ClientLevel level;
+   @EventBusSubscriber(Dist.CLIENT)
+   class Manager {
+      @SubscribeEvent
+      public static void onLevelLoad(UpdateableLevel.RenderEnginesUpdated event) {
+         synchronized (UpdateableLevel.INSTANCES) {
+            Iterator<WeakReference<UpdateableLevel<?>>> it = UpdateableLevel.INSTANCES.iterator();
 
-		public RenderEnginesUpdated(@Nullable ClientLevel level) {
-			this.level = level;
-		}
+            while (it.hasNext()) {
+               UpdateableLevel<?> instance = it.next().get();
+               if (instance != null) {
+                  instance.atl$onClientLevelUpdated(event.getLevel());
+               } else {
+                  it.remove();
+               }
+            }
 
+            ((ArrayList)UpdateableLevel.INSTANCES).trimToSize();
+         }
+      }
+   }
 
-		public @Nullable ClientLevel getLevel() {
-			return level;
-		}
-	}
+   class RenderEnginesUpdated extends Event {
+      @Nullable
+      ClientLevel level;
 
-	@EventBusSubscriber(Dist.CLIENT)
-	class Manager {
+      public RenderEnginesUpdated(@Nullable ClientLevel level) {
+         this.level = level;
+      }
 
-		@SubscribeEvent
-		static public void onLevelLoad(RenderEnginesUpdated event) {
-			synchronized (INSTANCES) {
-				var it = INSTANCES.iterator();
-				while (it.hasNext()) {
-					var instance = it.next().get();
-					if (instance != null) {
-						instance.atl$onClientLevelUpdated(event.getLevel());
-					} else {
-						it.remove();
-					}
-				}
-				((ArrayList) INSTANCES).trimToSize();
-			}
-		}
-	}
+      @Nullable
+      public ClientLevel getLevel() {
+         return this.level;
+      }
+   }
 }

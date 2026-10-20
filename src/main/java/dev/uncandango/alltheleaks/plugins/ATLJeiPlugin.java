@@ -8,17 +8,14 @@ import net.neoforged.neoforge.common.NeoForge;
 
 @JeiPlugin
 public class ATLJeiPlugin implements IModPlugin {
-	@Override
-	public ResourceLocation getPluginUid() {
-		return ResourceLocation.parse("jei:alltheleaks");
-	}
+   public ResourceLocation getPluginUid() {
+      return ResourceLocation.parse("jei:alltheleaks");
+   }
 
-	@Override
-	public void onRuntimeUnavailable() {
-		NeoForge.EVENT_BUS.post(new RuntimeUnavailableEvent());
-	}
+   public void onRuntimeUnavailable() {
+      NeoForge.EVENT_BUS.post(new ATLJeiPlugin.RuntimeUnavailableEvent());
+   }
 
-	public static class RuntimeUnavailableEvent extends Event {
-
-	}
+   public static class RuntimeUnavailableEvent extends Event {
+   }
 }

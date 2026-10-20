@@ -8,29 +8,29 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Issue {
-	String modId();
+   String modId();
 
-	String issueId() default "[untracked]";
+   String issueId() default "[untracked]";
 
-	String versionRange();
+   String versionRange();
 
-	String[] mixins() default {};
+   String[] mixins() default {};
 
-	boolean solved() default false;
+   boolean solved() default false;
 
-	String[] extraModDep() default {};
+   String[] extraModDep() default {};
 
-	String[] extraModDepVersions() default {};
+   String[] extraModDepVersions() default {};
 
-	String config() default "";
+   String config() default "";
 
-	boolean devOnly() default false;
+   boolean devOnly() default false;
 
-	String[] mixinsToCancel() default {};
+   String[] mixinsToCancel() default {};
 
-	boolean configActivated() default false;
+   boolean configActivated() default false;
 
-	String onlyIfModAbsent() default "";
+   String onlyIfModAbsent() default "";
 
-	String description() default "";
+   String description() default "";
 }

@@ -22,18 +22,26 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LevelChunk.class)
 public abstract class LevelChunkMixin extends ChunkAccess {
-	@Shadow
-	@Final
-	Level level;
+   @Shadow
+   @Final
+   Level level;
 
-	public LevelChunkMixin(ChunkPos chunkPos, UpgradeData upgradeData, LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry, long inhabitedTime, @Nullable LevelChunkSection[] sections, @Nullable BlendingData blendingData) {
-		super(chunkPos, upgradeData, levelHeightAccessor, biomeRegistry, inhabitedTime, sections, blendingData);
-	}
+   public LevelChunkMixin(
+      ChunkPos chunkPos,
+      UpgradeData upgradeData,
+      LevelHeightAccessor levelHeightAccessor,
+      Registry<Biome> biomeRegistry,
+      long inhabitedTime,
+      @Nullable LevelChunkSection[] sections,
+      @Nullable BlendingData blendingData
+   ) {
+      super(chunkPos, upgradeData, levelHeightAccessor, biomeRegistry, inhabitedTime, sections, blendingData);
+   }
 
-	@Inject(method = "registerAllBlockEntitiesAfterLevelLoad", at =@At("TAIL"))
-	private void reportFreshEntitiesCount(CallbackInfo ci){
-		if (this.level instanceof LevelAccessor sl) {
-			AllTheLeaks.LOGGER.info("Fresh BlockEntities for {} is {}", level.dimension().location(), sl.atl$getFreshBlockEntities().size());
-		}
-	}
+   @Inject(method = "registerAllBlockEntitiesAfterLevelLoad", at = @At("TAIL"))
+   private void reportFreshEntitiesCount(CallbackInfo ci) {
+      if (this.level instanceof LevelAccessor sl) {
+         AllTheLeaks.LOGGER.info("Fresh BlockEntities for {} is {}", this.level.dimension().location(), sl.atl$getFreshBlockEntities().size());
+      }
+   }
 }

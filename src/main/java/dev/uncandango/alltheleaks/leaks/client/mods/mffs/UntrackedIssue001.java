@@ -4,24 +4,20 @@ import dev.su5ed.mffs.util.FrequencyGrid;
 import dev.uncandango.alltheleaks.annotation.Issue;
 import dev.uncandango.alltheleaks.mixin.UpdateableLevel;
 import dev.uncandango.alltheleaks.utils.ReflectionHelper;
-import net.neoforged.neoforge.common.NeoForge;
-
 import java.lang.invoke.VarHandle;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.common.NeoForge;
 
 @Issue(modId = "mffs", versionRange = "[5.4.17,)")
 public class UntrackedIssue001 {
-	public static final VarHandle CLIENT_INSTANCE;
+   public static final VarHandle CLIENT_INSTANCE = ReflectionHelper.getFieldFromClass(FrequencyGrid.class, "CLIENT_INSTANCE", FrequencyGrid.class, true);
 
-	public UntrackedIssue001() {
-		var gameBus = NeoForge.EVENT_BUS;
-		gameBus.addListener(this::clearOnLevelUpdate);
-	}
+   public UntrackedIssue001() {
+      IEventBus gameBus = NeoForge.EVENT_BUS;
+      gameBus.addListener(this::clearOnLevelUpdate);
+   }
 
-	static {
-		CLIENT_INSTANCE = ReflectionHelper.getFieldFromClass(FrequencyGrid.class, "CLIENT_INSTANCE", FrequencyGrid.class, true);
-	}
-
-	private void clearOnLevelUpdate(UpdateableLevel.RenderEnginesUpdated event) {
-		CLIENT_INSTANCE.set(new FrequencyGrid());
-	}
+   private void clearOnLevelUpdate(UpdateableLevel.RenderEnginesUpdated event) {
+      CLIENT_INSTANCE.set((FrequencyGrid)(new FrequencyGrid()));
+   }
 }

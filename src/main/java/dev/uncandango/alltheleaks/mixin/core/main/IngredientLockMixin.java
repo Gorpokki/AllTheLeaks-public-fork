@@ -11,40 +11,41 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(Ingredient.class)
 public class IngredientLockMixin implements InnerLockable {
-	@Unique
-	private boolean atl$locked = false;
+   @Unique
+   private boolean atl$locked = false;
+   @Unique
+   private boolean atl$innerLocked = false;
 
-	@Unique
-	private boolean atl$innerLocked = false;
+   @Override
+   public boolean atl$isInnerLocked() {
+      return this.atl$innerLocked;
+   }
 
-	@Override
-	public boolean atl$isInnerLocked() {
-		return atl$innerLocked;
-	}
+   @Override
+   public void atl$setInnerLocked(boolean locked) {
+      this.atl$innerLocked = locked;
+   }
 
-	@Override
-	public void atl$setInnerLocked(boolean locked) {
-		this.atl$innerLocked = locked;
-	}
+   @Override
+   public boolean atl$isLocked() {
+      return this.atl$locked;
+   }
 
-	@Override
-	public boolean atl$isLocked() {
-		return atl$locked;
-	}
+   @Override
+   public void atl$setLocked(boolean locked) {
+      this.atl$locked = locked;
+   }
 
-	@Override
-	public void atl$setLocked(boolean locked) {
-		this.atl$locked = locked;
-	}
+   @ModifyReturnValue(method = "getItems", at = @At("RETURN"))
+   private ItemStack[] lockIfNeeded(ItemStack[] original) {
+      if (this.atl$locked && !this.atl$innerLocked) {
+         for (ItemStack stack : original) {
+            ((Lockable)stack).atl$setLocked(true);
+         }
 
-	@ModifyReturnValue(method = "getItems", at = @At("RETURN"))
-	private ItemStack[] lockIfNeeded(ItemStack[] original){
-		if (this.atl$locked && !this.atl$innerLocked){
-			for (var stack : original) {
-				((Lockable)(Object)stack).atl$setLocked(true);
-			}
-			this.atl$innerLocked = true;
-		}
-		return original;
-	}
+         this.atl$innerLocked = true;
+      }
+
+      return original;
+   }
 }

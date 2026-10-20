@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(value = BaseScreen.class, remap = false)
 public interface BaseScreenAccessor {
-	@Mutable
-	@Accessor("prevScreen")
-	void atl$setPrevScreen(Screen screen);
+   @Mutable
+   @Accessor("prevScreen")
+   void atl$setPrevScreen(Screen var1);
 }
